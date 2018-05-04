@@ -7,7 +7,8 @@ import math
 
 # MARK: Visual
 
-def single(eqn,dmn_1,dmn_2,dx): # have arguments returned by menu() (eqn,dmn,dx,possibly others which can be altered onscreen)
+# Plot a single equation
+def single(eqn,dmn_1,dmn_2,dx):
 
     # set up the scene (axes, labels, etc.)
 
@@ -40,7 +41,7 @@ def single(eqn,dmn_1,dmn_2,dx): # have arguments returned by menu() (eqn,dmn,dx,
     objects_x = []
 
     # generate cylindrical shells of random color and of volume = 2 * pi * x * f(x) * dx going from the beginning to the end of the range
-
+    
     for x in arange(dmn_1, dmn_2, dx):
         rate(150)
         r = uniform(0,1)
@@ -187,6 +188,7 @@ def single(eqn,dmn_1,dmn_2,dx): # have arguments returned by menu() (eqn,dmn,dx,
 
     return q
 
+# Plot two equations
 def double(eqn1,eqn2,dx,auto,dmn_1,dmn_2):
     # double curves (donut method)
 
@@ -196,7 +198,7 @@ def double(eqn1,eqn2,dx,auto,dmn_1,dmn_2):
     # fill in those areas (integrate)
     # rotate everything about the x-axis
 
-    print("Still in beta, thank you for your considerations.")
+    print("Still in beta, gang gang.")
 
     return True
 
@@ -219,9 +221,10 @@ def prompt(request, type_cast=int, err="Error, please try again.", err_type=Valu
                 print(err)
     return res
 
+# Set up our equations, domains, ranges, dx, etc. for 3D display
 def initialize():
     _rate = 100
-    one_eq,eqn,eqn1,eqn2,dmn1,dmn2,dx = False,'4','2','0',6,9,0.1
+    one_eq,eqn,eqn1,eqn2,dmn1,dmn2,dx = True,'4','2','0',6,9,0.1
 
     rate(_rate)
 

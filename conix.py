@@ -9,7 +9,7 @@ def main():
 
     auto = False
 
-    if one_eq == True:
+    if one_eq:
         finish = single(eqn,dmn1,dmn2,dx)
     else:
         finish = double(eqn1,eqn2,dx,auto,dmn1,dmn2)

@@ -4,6 +4,7 @@ from visual import *
 from random import uniform
 import math
 
+# Rotate our equation around a given axis or random 3D vector
 def rotate(eqn, obj, dmn_1, dmn_2, dx, string, a1, a2, a3):
     if string == "y":
         if len(obj) == 0:
