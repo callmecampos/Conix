@@ -245,7 +245,7 @@ def initialize():
     while True:
         try:
             temp = int(raw_input("Choose a number corresponding with your intended option (1-4): "))
-            if type(temp) == int and (0 < temp and temp < 4):
+            if type(temp) == int and (0 < temp and temp <= 4):
                 val = temp
             else:
                 val = int('krusty krab is unfair, mr krabs is in there, standing at concession, plotting his oppression')
@@ -283,8 +283,8 @@ def initialize():
         dmn2 = prompt("Enter the end of the domain: ", float, "Value error, please try again.", ValueError)
         dx = prompt("Enter dx: ", float, "Value error, please try again.", ValueError)
 
-        print eqn, "from", dmn1, "to", dmn2
-        print "dx =", dx
+        print(eqn + " from " + str(dmn1) + " to " + str(dmn2))
+        print("dx = " + str(dx))
     else:
         if val == 1:
             eqn1, eqn2 = '2*x**2 - 6*x + 4', '4*cos(math.pi*x / 4)'
@@ -319,7 +319,7 @@ def initialize():
         dmn2 = prompt("Enter the end of the domain: ", float, "Value error, please try again.", ValueError)
         dx = prompt("Enter dx: ", float, "Value error, please try again.", ValueError)
 
-        print eqn1, eqn2, "from", dmn1, "to", dmn2
-        print "dx =", dx
+        print(eqn1 + " " + eqn2 + " from " + str(dmn1) + " to " + str(dmn2))
+        print("dx = " + str(dx))
 
     return one_eq, eqn, eqn1, eqn2, dmn1, dmn2, dx
