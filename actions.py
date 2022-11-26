@@ -1,102 +1,38 @@
 #!/usr/bin/env python
 
-from visual import *
+from vpython import *
 from random import uniform
 import math
 
 # Rotate our equation around a given axis or random 3D vector
-def rotate(eqn, obj, dmn_1, dmn_2, dx, string, a1, a2, a3):
-    if string == "y":
-        if len(obj) == 0:
+def rotate(eqn, obj, dmn_1, dmn_2, dx, a1, a2, a3):
+    _axis = vector(a1, a2, a3)
 
-            col = color.yellow
+    if len(obj) == 0:
+        
+        col = color.yellow
 
-            c = 128
-            for _ in range(0,2*c):
-                x = arange(dmn_1, dmn_2, dx)
-                frm = frame()
-                func = curve(frame = frm, x = x, y = eval(eqn), color = col, radius = 0.05)
-                obj.append(frm)
+        c = 128
+        for _ in range(0,2*c):
+            x = arange(dmn_1, dmn_2, dx)
+            
+            lambda_eqn = lambda x : eval(eqn)
 
-            count = 1
-            for _ in obj:
-                rate(150)
-                _.rotate(angle=count*math.pi/c, axis=(0,1,0))
-                count += 1
-        else:
-            for _ in obj:
-                rate(150)
-                _.visible = False
-                del _
-            obj = []
-    elif string == "x":
-        if len(obj) == 0:
+            vals = [[_x, lambda_eqn(_x), 0] for _x in x]
 
-            col = color.yellow
+            func = curve(pos = vals, color = color.yellow, radius = 0.05)
+            obj.append(func)
 
-            c = 128
-            for _ in range(0,2*c):
-                x = arange(dmn_1, dmn_2, dx)
-                frm = frame()
-                func = curve(frame = frm, x = x, y = eval(eqn), color = col, radius = 0.05)
-                obj.append(frm)
-
-            count = 1
-            for _ in obj:
-                rate(150)
-                _.rotate(angle=-count*math.pi/c, axis=(1,0,0))
-                count += 1
-        else:
-            for _ in obj:
-                rate(150)
-                _.visible = False
-                del _
-            obj = []
-    elif string == "z":
-        if len(obj) == 0:
-
-            col = color.yellow
-
-            c = 128
-            for _ in range(0,2*c):
-                x = arange(dmn_1, dmn_2, dx)
-                frm = frame()
-                func = curve(frame = frm, x = x, y = eval(eqn), color = col, radius = 0.05)
-                obj.append(frm)
-
-            count = 1
-            for _ in obj:
-                rate(150)
-                _.rotate(angle=count*math.pi/c, axis=(0,0,1))
-                count += 1
-        else:
-            for _ in obj:
-                rate(150)
-                _.visible = False
-                del _
-            obj = []
-    elif string == "a":
-        if len(obj) == 0:
-
-            col = color.yellow
-
-            c = 128
-            for _ in range(0,2*c):
-                x = arange(dmn_1, dmn_2, dx)
-                frm = frame()
-                func = curve(frame = frm, x = x, y = eval(eqn), color = col, radius = 0.05)
-                obj.append(frm)
-
-            count = 1
-            for _ in obj:
-                rate(150)
-                _.rotate(angle=count*math.pi/c, axis=(a1,a2,a3))
-                count += 1
-        else:
-            for _ in obj:
-                rate(150)
-                _.visible = False
-                del _
-            obj = []
+        count = 1
+        for _ in obj:
+            rate(150)
+            _.rotate(angle=count*math.pi/c, axis=_axis)
+            count += 1
+    else:
+        for _ in obj:
+            rate(150)
+            _.visible = False
+            del _
+        obj = []
 
     return obj

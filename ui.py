@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from visual import *
+from vpython import *
 from random import uniform
 from actions import rotate
 import math
@@ -16,29 +16,35 @@ def single(eqn,dmn_1,dmn_2,dx):
     w = -3
     a = -4
 
-    scene = display(title='Conical Shells', x=0, y=0)
-    scene.background = (0.5,0.5,0.5)
-    scene.forward = (q,w,a)
-    scene.range = (dmn_2*5,dmn_2*5,dmn_2*5)
+    scene = canvas(title='Conical Shells', x=0, y=0, color=color.gray)
+    scene.background = vector(0.5,0.5,0.5)
+    scene.forward = vector(q,w,a)
+    scene.range = dmn_2*5
 
-    xax = arrow(pos = (-dmn_2*25,0,0), axis = (50*dmn_2,0,0), height = 0.25, depth = 0.25, shaftwidth = 0.1, color = color.blue, materials = materials.chrome)
-    yax = arrow(pos = (0,-dmn_2*25,0), axis = (0,50*dmn_2,0), height = 0.25, depth = 0.25, shaftwidth = 0.1, color = color.green, materials = materials.chrome)
-    zax = arrow(pos = (0,0,-dmn_2*25), axis = (0,0,50*dmn_2), height = 0.25, depth = 0.25, shaftwidth = 0.1, color = color.red, materials = materials.chrome)
+    # NOTE: websocket server gets started here... need to figure out a way to initialize this only when symbolica queries basically... so like it doesn't open...?
 
-    x_label = label(pos = (dmn_2*3,0,0), text='x axis', yoffset=5, height=10, border=3, font='sans')
-    y_label = label(pos = (0,dmn_2*3,0), text='y axis', yoffset=5, height=10, border=3, font='sans')
-    z_label = label(pos = (0,0,dmn_2*3), text='z axis', yoffset=5, height=10, border=3, font='sans')
+    xax = arrow(pos = vector(-dmn_2*25,0,0), axis = vector(50*dmn_2,0,0), height = 0.25, depth = 0.25, shaftwidth = 0.1, color = color.blue)#, materials = materials.chrome)
+    yax = arrow(pos = vector(0,-dmn_2*25,0), axis = vector(0,50*dmn_2,0), height = 0.25, depth = 0.25, shaftwidth = 0.1, color = color.green)#, materials = materials.chrome)
+    zax = arrow(pos = vector(0,0,-dmn_2*25), axis = vector(0,0,50*dmn_2), height = 0.25, depth = 0.25, shaftwidth = 0.1, color = color.red)#, materials = materials.chrome)
+
+    x_label = label(pos = vector(dmn_2*3,0,0), text='x axis', yoffset=5, height=10, border=3, font='sans')
+    y_label = label(pos = vector(0,dmn_2*3,0), text='y axis', yoffset=5, height=10, border=3, font='sans')
+    z_label = label(pos = vector(0,0,dmn_2*3), text='z axis', yoffset=5, height=10, border=3, font='sans')
 
     # plot the function as a curve object
 
     x = arange(dmn_1, dmn_2, 0.01)
 
-    f = frame()
+    # TODO: take in input from Symbolica and evaluate using sympy!!! and then visualize over http -- and use server to take inputs...
 
-    func = curve(frame = f, x = x, y = eval(eqn), color = color.yellow, radius = 0.05)
+    lambda_eqn = lambda x : eval(eqn)
 
-    objects_y = []
-    objects_x = []
+    vals = [[_x, lambda_eqn(_x), 0] for _x in x]
+
+    func = curve(pos = vals, color = color.yellow, radius = 0.05)
+
+    scene.conix_objects_y = []
+    scene.conix_objects_x = []
 
     # generate cylindrical shells of random color and of volume = 2 * pi * x * f(x) * dx going from the beginning to the end of the range
     
@@ -51,17 +57,17 @@ def single(eqn,dmn_1,dmn_2,dx):
 
         pos_y = y_val
 
-        cyl_y = cylinder(pos = (0,0,0), axis = (0,y_val,0), radius = x, color = (r,g,b), opacity = 0.15)
+        cyl_y = cylinder(pos = vector(0,0,0), axis = vector(0,y_val,0), radius = x, color = vector(r,g,b), opacity = 0.15)
         cyl_y.visible = False
 
-        cyl_x = cylinder(pos = (0,0,0), axis = (x,0,0), radius = y_val, color = (r,g,b), opacity = 0.15)
+        cyl_x = cylinder(pos = vector(0,0,0), axis = vector(x,0,0), radius = y_val, color = vector(r,g,b), opacity = 0.15)
         cyl_x.visible = False
 
-        objects_y.append(cyl_y)
-        objects_x.append(cyl_x)
+        scene.conix_objects_y.append(cyl_y)
+        scene.conix_objects_x.append(cyl_x)
 
-        if scene.range.y <= y_val / 1.5:
-            scene.range = (y_val+15,y_val+15,y_val+15)
+        if scene.range <= y_val / 1.5:
+            scene.range = y_val+15
             xax.shaftwidth += 0.1
             yax.shaftwidth += 0.1
             zax.shaftwidth += 0.1
@@ -89,7 +95,7 @@ def single(eqn,dmn_1,dmn_2,dx):
     offx = 30 - dmn_2
     offy = 30 - pos_y
 
-    flabel = label(pos=(dmn_2,pos_y,0), text="y = "+str(eqn), xoffset=offx, yoffset=offy, height=10, border=6, font='sans') # equation label
+    flabel = label(pos=vector(dmn_2,pos_y,0), text="y = "+str(eqn), xoffset=offx, yoffset=offy, height=10, border=6, font='sans') # equation label
 
     # Turns off the default user spin and zoom and handles these functions itself.
     # This gives more control to the program and addresses the problem that at the time of writing,
@@ -106,85 +112,87 @@ def single(eqn,dmn_1,dmn_2,dx):
     rangemin = 1
     rangemax = 100
 
-    i_x = 0
-    i_y = 0
+    scene.conix_ix = 0
+    scene.conix_iy = 0
 
-    q = True
-    brk = False
+    scene.conix_q = True
+    scene.conix_brk = False
 
-    obj = []
+    scene.conix_obj = []
 
-    x_show = True
-    y_show = True
+    scene.conix_y_show = True
+    scene.conix_x_show = True
 
     # (boolean on or off type thing --> return value of rotate()?)
+    def keyEvent(evt):
+        k = evt.key
+        print(k)
 
-    while brk == False:
+        if (k == 'shift+down' or k == "(") and scene.range < rangemax:
+            scene.range = scene.range + .5
+        elif (k == 'shift+up' or k == "&") and scene.range > rangemin:
+            scene.range = scene.range - .5
+        elif k == 'up':
+            scene.forward = vector(scene.forward.x, scene.forward.y - .1, scene.forward.z)
+        elif k == 'down':
+            scene.forward = vector(scene.forward.x, scene.forward.y + .1, scene.forward.z)
+        elif k == 'right':
+            scene.forward = vector(scene.forward.x - .1, scene.forward.y, scene.forward.z)
+        elif k == 'left':
+            scene.forward = vector(scene.forward.x + .1, scene.forward.y, scene.forward.z)
+        elif k == 'shift+left' or k == '"':
+            scene.forward = vector(scene.forward.x, scene.forward.y, scene.forward.z - .1)
+        elif k == 'shift+right' or k == '%':
+            scene.forward = vector(scene.forward.x, scene.forward.y, scene.forward.z + .1)
+        elif k == 'i':
+            scene.conix_objects_y[scene.conix_iy].visible = False
+            if scene.conix_iy > 0:
+                scene.conix_iy -= 1
+            else:
+                scene.conix_x_show = True
+        elif k == 'o' and scene.conix_y_show:
+            scene.conix_x_show = False
+            scene.conix_objects_y[scene.conix_iy].visible = True
+            if scene.conix_iy < len(scene.conix_objects_y) - 1:
+                scene.conix_iy += 1
+        elif k == 'I':
+            scene.conix_objects_x[scene.conix_ix].visible = False
+            if scene.conix_ix > 0:
+                scene.conix_ix -= 1
+            else:
+                scene.conix_y_show = True
+        elif k == 'O' and scene.conix_x_show:
+            scene.conix_y_show = False
+            scene.conix_objects_x[scene.conix_ix].visible = True
+            if scene.conix_ix < len(scene.conix_objects_x) - 1:
+                scene.conix_ix += 1
+        elif k == 'r':
+            a = 0
+            c = 64
+            while a != 2*c:
+                rate(50)
+                func.rotate(angle=math.pi/c, axis=vector(0,1,0))
+                a += 1
+        elif k == 'x' and scene.conix_x_show:
+            scene.conix_obj = rotate(eqn,scene.conix_obj,dmn_1,dmn_2,0.01,1,0,0)
+        elif k == 'y' and scene.conix_y_show:
+            scene.conix_obj = rotate(eqn,scene.conix_obj,dmn_1,dmn_2,0.01,0,1,0)
+        elif k == 'z':
+            scene.conix_obj = rotate(eqn,scene.conix_obj,dmn_1,dmn_2,0.01,0,0,1)
+        elif k == ' ':
+            v1, v2, v3 = uniform(-10,10), uniform(-10,10), uniform(-10,10)
+            scene.conix_obj = rotate(eqn,scene.conix_obj,dmn_1,dmn_2,0.01,v1,v2,v3)
+        elif k == 'q':
+            q = False
+            scene.conix_brk = True
+        elif k == '.':
+            scene.conix_brk = True
+
+    scene.bind('keydown', keyEvent)
+    while scene.conix_brk == False:
         rate(100)
-        if scene.kb.keys:
-            k = scene.kb.getkey()
-
-            if k == 'shift+down' and scene.range.x < rangemax:
-                scene.range = scene.range.x + .5
-            elif k == 'shift+up' and scene.range.x > rangemin:
-                scene.range = scene.range.x - .5
-            elif k == 'up':
-                scene.forward = (scene.forward.x, scene.forward.y - .1, scene.forward.z)
-            elif k == 'down':
-                scene.forward = (scene.forward.x, scene.forward.y + .1, scene.forward.z)
-            elif k == 'right':
-                scene.forward = (scene.forward.x - .1, scene.forward.y, scene.forward.z)
-            elif k == 'left':
-                scene.forward = (scene.forward.x + .1, scene.forward.y, scene.forward.z)
-            elif k == 'shift+left':
-                scene.forward = (scene.forward.x, scene.forward.y, scene.forward.z - .1)
-            elif k == 'shift+right':
-                scene.forward = (scene.forward.x, scene.forward.y, scene.forward.z + .1)
-            elif k == 'i':
-                objects_y[i_y].visible = False
-                if i_y > 0:
-                    i_y -= 1
-                else:
-                    x_show = True
-            elif k == 'o' and y_show == True:
-                x_show = False
-                objects_y[i_y].visible = True
-                if i_y < len(objects_x) - 1:
-                    i_y += 1
-            elif k == 'I':
-                objects_x[i_x].visible = False
-                if i_x > 0:
-                    i_x -= 1
-                else:
-                    y_show = True
-            elif k == 'O' and x_show == True:
-                y_show = False
-                objects_x[i_x].visible = True
-                if i_x < len(objects_x) - 1:
-                    i_x += 1
-            elif k == 'r':
-                a = 0
-                c = 64
-                while a != 2*c:
-                    rate(50)
-                    f.rotate(angle=math.pi/c, axis=(0,1,0))
-                    a += 1
-            elif k == 'x' and x_show == True:
-                obj = rotate(eqn,obj,dmn_1,dmn_2,0.01,"x",0,0,0)
-            elif k == 'y' and y_show == True:
-                obj = rotate(eqn,obj,dmn_1,dmn_2,0.01,"y",0,0,0)
-            elif k == 'z':
-                obj = rotate(eqn,obj,dmn_1,dmn_2,0.01,"z",0,0,0)
-            elif k == ' ':
-                v1, v2, v3 = uniform(-10,10), uniform(-10,10), uniform(-10,10)
-                obj = rotate(eqn,obj,dmn_1,dmn_2,0.01,"a",v1,v2,v3)
-            elif k == 'q':
-                q = False
-                brk = True
-            elif k == '.':
-                brk = True
-
-    window.delete_all()
+        #ks = keysdown()
+        #if ks: print(ks)
 
     return q
 
@@ -209,13 +217,13 @@ def prompt(request, type_cast=int, err="Error, please try again.", err_type=Valu
     while True:
         if err_type != None:
             try:
-                res = type_cast(raw_input(request + " "))
+                res = type_cast(input(request + " "))
                 break
             except err_type:
                 print(err)
         else:
             try:
-                res = type_cast(raw_input(request + " "))
+                res = type_cast(input(request + " "))
                 break
             except:
                 print(err)
@@ -244,7 +252,7 @@ def initialize():
               (3) Create your own pair of equations (NOT SUPPORTED).")
     while True:
         try:
-            temp = int(raw_input("Choose a number corresponding with your intended option (1-4): "))
+            temp = int(input("Choose a number corresponding with your intended option (1-4): "))
             if type(temp) == int and (0 < temp and temp <= 4):
                 val = temp
             else:
@@ -269,7 +277,7 @@ def initialize():
 
             while True:
                 try:
-                    eqn = raw_input("Enter any function y = ")
+                    eqn = input("Enter any function y = ")
                     if eqn.find("^") != -1: # or something else
                         print('Function inputted incorrectly, please try again.')
                     else:
@@ -294,7 +302,7 @@ def initialize():
             eqn1, eqn2 = '', ''
             while True:
                 try:
-                    eqn1 = raw_input("Enter any function y_1 = ")
+                    eqn1 = input("Enter any function y_1 = ")
                     if eqn1.find("^") != -1: # or something else
                         print('Function inputted incorrectly, please try again.')
                     else:
@@ -305,7 +313,7 @@ def initialize():
                     print('Function inputted incorrectly, please try again.')
             while True:
                 try:
-                    eqn2 = raw_input("Enter any function y_2 = ")
+                    eqn2 = input("Enter any function y_2 = ")
                     if eqn2.find("^") != -1: # or something else
                         print('Function inputted incorrectly, please try again.')
                     else:
